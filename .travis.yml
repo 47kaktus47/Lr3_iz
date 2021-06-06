@@ -3,11 +3,6 @@ before_install:
 - chmod +x ./flaskapp/st.sh
 install:
 - pip install -r requirements.txt
-- pip install -r flask
-- pip install -r flask_wtf
-- pip install -r flask_bootstrap
-- pip install -r numpy
-- pip install -r seaborn
 script:
 - cd flaskapp
 - ./st.sh
