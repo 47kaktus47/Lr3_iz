@@ -56,90 +56,49 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 ## функция для оброботки изображения 
-def draw(filename,size_1,size_2,size_3):
- ##открываем изображение 
- print(filename)
- img= Image.open(filename)
-
-##делаем график
- fig = plt.figure(figsize=(6, 4))
- ax = fig.add_subplot()
- data = np.random.randint(0, 255, (100, 100))
- ax.imshow(img, cmap='plasma')
- b = ax.pcolormesh(data, edgecolors='black', cmap='plasma')
- fig.colorbar(b, ax=ax)
- gr_path = "./static/newgr.png"
- sns.displot(data)
- #plt.show()
- plt.savefig(gr_path)
- plt.close()
-
-
-##рисуем рамки
- size_1=int(size_1)
- size_2=int(size_2)
- size_3=int(size_3)
- height = 224
- width = 224
- img= np.array(img.resize((height,width)))/255.0
- print(size_1)
- print(size_2)
- print(size_3)
- 
- size_2=size_1+size_2
- size_3=size_1+size_2+size_3
- print(img)
- img[:size_3,:] = (0,0,1)
- img[:,0:size_3] = (0,0,1)
- img[:,224-size_3:] = (0,0,1)
- img[224-size_3:,:] = (0,0,1)
-
- img[:size_2,:] = (0,1,0)
- img[:,0:size_2] = (0,1,0)
- img[:,224-size_2:] = (0,1,0)
- img[224-size_2:,:] = (0,1,0)
+def draw(filename,cho): 
+##открываем изображение print(filename) 
+ img= Image.open(filename) 
+ x, y = img.size cho=int(cho) 
+##делаем график 
+ fig = plt.figure(figsize=(6, 4)) ax = fig.add_subplot() 
+ data = np.random.randint(0, 255, (100, 100)) 
+ ax.imshow(img, cmap='plasma') 
+ b = ax.pcolormesh(data, edgecolors='black', cmap='plasma') fig.colorbar(b, ax=ax) gr_path = "./static/newgr.png" sns.displot(data) 
+#plt.show() 
+ plt.savefig(gr_path) plt.close() 
+##меняем половинки 
+ if cho==1: 
+  a = img.crop((0, 0, int(y * 0.5), x)) 
+  b = img.crop((int(y * 0.5), 0, x, y))
+  img.paste(b, (0, 0)) 
+  img.paste(a, (int(x * 0.5), 0)) 
+  output_filename = filename 
+  img.save(output_filename) 
+ else: 
+  img=img.rotate(90) 
+  a = img.crop((0, 0, int(y * 0.5), x)) 
+  b = img.crop((int(y * 0.5), 0, x, y)) 
+  img.paste(b, (0, 0)) 
+  img.paste(a, (int(y * 0.5), 0)) 
+  img=img.rotate(270) 
+  output_filename = filename 
+  img.save(output_filename) 
+ return output_filename,gr_path 
 
 
- img[:size_1,:] = (0,0,1)
- img[:,0:size_1] = (0,0,1)
- img[:,224-size_1:] = (0,0,1)
- img[224-size_1:,:] = (0,0,1)
-
-##сохраняем новое изображение
- img = Image.fromarray((img * 255).astype(np.uint8))
- print(img)
- #img = Image.fromarray(img)
- new_path = "./static/new.png"
- print(img)
- img.save(new_path)
- return new_path, gr_path
-
-
-# метод обработки запроса GET и POST от клиента
-@app.route("/net",methods=['GET', 'POST'])
-def net():
- # создаем объект формы
- form = NetForm()
- # обнуляем переменные передаваемые в форму
- filename=None
- newfilename=None
- grname=None
- # проверяем нажатие сабмит и валидацию введенных данных
- if form.validate_on_submit():
-  # файлы с изображениями читаются из каталога static
-  filename = os.path.join('./static', secure_filename(form.upload.data.filename))
- 
-  sz1=form.size_1.data
-  sz2=form.size_2.data
-  sz3=form.size_3.data
- 
-  form.upload.data.save(filename)
-  newfilename, grname = draw(filename,sz1,sz2,sz3)
- # передаем форму в шаблон, так же передаем имя файла и результат работы нейронной
- # сети если был нажат сабмит, либо передадим falsy значения
- 
- return render_template('net.html',form=form,image_name=newfilename,gr_name=grname,filename=filename)
-
+# метод обработки запроса GET и POST от клиента 
+@app.route("/net",methods=['GET', 'POST']) def net(): 
+# создаем объект формы form = NetForm() 
+# обнуляем переменные передаваемые в форму filename=None newfilename=None grname=None 
+# проверяем нажатие сабмит и валидацию введенных данных if form.validate_on_submit(): 
+# файлы с изображениями читаются из каталога static 
+filename = os.path.join('./static', secure_filename(form.upload.data.filename)) 
+ch=form.cho.data 
+form.upload.data.save(filename) 
+newfilename,grname = draw(filename,ch) 
+# передаем форму в шаблон, так же передаем имя файла и результат работы 
+return render_template('net.html',form=form,image_name=newfilename,gr_name=grname) 
 
 if __name__ == "__main__":
  app.run(host='127.0.0.1',port=5000,debug=True)
