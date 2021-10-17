@@ -20,8 +20,8 @@ SECRET_KEY = 'secret'
 app.config['SECRET_KEY'] = SECRET_KEY
 # используем капчу и полученные секретные ключи с сайта google 
 app.config['RECAPTCHA_USE_SSL'] = False
-app.config['RECAPTCHA_PUBLIC_KEY'] = '6LfYYBYbAAAAADJHJ8wKO4fzgq7uks6wuNL-sSnK'
-app.config['RECAPTCHA_PRIVATE_KEY'] = '6LfYYBYbAAAAALpp5LL3quMnXKXHAo2KdfQAm8-V'
+app.config['RECAPTCHA_PUBLIC_KEY'] = '6Lf3OBEbAAAAAMasiNpanMj7eJsZDauggc701eEj'
+app.config['RECAPTCHA_PRIVATE_KEY'] = '6Lf3OBEbAAAAACjPbTkJcwh7-CLpw_qYvpAimiaq'
 app.config['RECAPTCHA_OPTIONS'] = {'theme': 'white'}
 # обязательно добавить для работы со стандартными шаблонами
 from flask_bootstrap import Bootstrap
@@ -32,9 +32,7 @@ class NetForm(FlaskForm):
  # валидатор проверяет введение данных после нажатия кнопки submit
  # и указывает пользователю ввести данные если они не введены
  # или неверны
- size_1 = StringField('size1', validators = [DataRequired()])
- size_2 = StringField('size2', validators = [DataRequired()])
- size_3 = StringField('size3', validators = [DataRequired()])
+ size = StringField('size', validators = [DataRequired()])
  # поле загрузки файла
  # здесь валидатор укажет ввести правильные файлы
  upload = FileField('Load image', validators=[
@@ -56,49 +54,65 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 ## функция для оброботки изображения 
-def draw(filename,cho): 
-##открываем изображение print(filename) 
- img= Image.open(filename) 
- x, y = img.size cho=int(cho) 
-##делаем график 
- fig = plt.figure(figsize=(6, 4)) ax = fig.add_subplot() 
- data = np.random.randint(0, 255, (100, 100)) 
- ax.imshow(img, cmap='plasma') 
- b = ax.pcolormesh(data, edgecolors='black', cmap='plasma') fig.colorbar(b, ax=ax) gr_path = "./static/newgr.png" sns.displot(data) 
-#plt.show() 
- plt.savefig(gr_path) plt.close() 
-##меняем половинки 
- if cho==1: 
-  a = img.crop((0, 0, int(y * 0.5), x)) 
-  b = img.crop((int(y * 0.5), 0, x, y))
-  img.paste(b, (0, 0)) 
-  img.paste(a, (int(x * 0.5), 0)) 
-  output_filename = filename 
-  img.save(output_filename) 
- else: 
-  img=img.rotate(90) 
-  a = img.crop((0, 0, int(y * 0.5), x)) 
-  b = img.crop((int(y * 0.5), 0, x, y)) 
-  img.paste(b, (0, 0)) 
-  img.paste(a, (int(y * 0.5), 0)) 
-  img=img.rotate(270) 
-  output_filename = filename 
-  img.save(output_filename) 
- return output_filename,gr_path 
+def draw(filename,size):
+ ##открываем изображение 
+ print(filename)
+ img= Image.open(filename)
 
+##делаем график
+ fig = plt.figure(figsize=(6, 4))
+ ax = fig.add_subplot()
+ data = np.random.randint(0, 255, (100, 100))
+ ax.imshow(img, cmap='plasma')
+ b = ax.pcolormesh(data, edgecolors='black', cmap='plasma')
+ fig.colorbar(b, ax=ax)
+ gr_path = "./static/newgr.png"
+ sns.displot(data)
+ #plt.show()
+ plt.savefig(gr_path)
+ plt.close()
 
-# метод обработки запроса GET и POST от клиента 
-@app.route("/net",methods=['GET', 'POST']) def net(): 
-# создаем объект формы form = NetForm() 
-# обнуляем переменные передаваемые в форму filename=None newfilename=None grname=None 
-# проверяем нажатие сабмит и валидацию введенных данных if form.validate_on_submit(): 
-# файлы с изображениями читаются из каталога static 
-filename = os.path.join('./static', secure_filename(form.upload.data.filename)) 
-ch=form.cho.data 
-form.upload.data.save(filename) 
-newfilename,grname = draw(filename,ch) 
-# передаем форму в шаблон, так же передаем имя файла и результат работы 
-return render_template('net.html',form=form,image_name=newfilename,gr_name=grname) 
+##рисуем рамки
+ size=int(size)
+ height = 224
+ width = 224
+ img= np.array(img.resize((height,width)))/255.0
+ print(size)
+ img[:size,:,1] = 0
+ img[:,0:size,1] = 0
+ img[:,224-size:,1] = 0
+ img[224-size:,:,1] = 0
+##сохраняем новое изображение
+ img = Image.fromarray((img * 255).astype(np.uint8))
+ print(img)
+ #img = Image.fromarray(img)
+ new_path = "./static/new.png"
+ print(img)
+ img.save(new_path)
+ return new_path, gr_path
+
+# метод обработки запроса GET и POST от клиента
+@app.route("/net",methods=['GET', 'POST'])
+def net():
+ # создаем объект формы
+ form = NetForm()
+ # обнуляем переменные передаваемые в форму
+ filename=None
+ newfilename=None
+ grname=None
+ # проверяем нажатие сабмит и валидацию введенных данных
+ if form.validate_on_submit():
+  # файлы с изображениями читаются из каталога static
+  filename = os.path.join('./static', secure_filename(form.upload.data.filename))
+ 
+  sz=form.size.data
+ 
+  form.upload.data.save(filename)
+  newfilename, grname = draw(filename,sz)
+ # передаем форму в шаблон, так же передаем имя файла и результат работы нейронной
+ # сети если был нажат сабмит, либо передадим falsy значения
+ 
+ return render_template('net.html',form=form,image_name=newfilename,gr_name=grname)
 
 if __name__ == "__main__":
- app.run(host='127.0.0.1',port=5000,debug=True)
+ app.run(host='127.0.0.1',port=5000)
