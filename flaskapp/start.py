@@ -96,9 +96,12 @@ def draw(filename,size1,size2):
  img2 = Image.fromarray((img2 * 255).astype(np.uint8))
  print(img)
  #img = Image.fromarray(img)
+ new_path = "./static/new.png"
+ print(img)
+ img.save(new_path)
  new_path1 = "./static/new1.png"
  print(img)
- img.save(new_path1)
+ img2.save(new_path1)
  return new_path, gr_path, new_path1
 
 # метод обработки запроса GET и POST от клиента
