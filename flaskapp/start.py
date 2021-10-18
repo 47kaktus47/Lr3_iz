@@ -87,10 +87,10 @@ def draw(filename,size1,size2):
 
  img2= np.array(img2.resize((height,width)))/255.0
  print(size2)
- img2[:size2,:,1] = 0
- img2[:,0:size2,1] = 0
- img2[:,224-size2:,1] = 0
- img2[224-size2:,:,1] = 0
+ img2[:size2,:] = (0,0,0)
+ img2[:,0:size2] = (0,0,0)
+ img2[:,224-size2:] = (0,0,0)
+ img2[224-size2:,:] = (0,0,0)
 ##сохраняем новое изображение
  img = Image.fromarray((img * 255).astype(np.uint8))
  img2 = Image.fromarray((img2 * 255).astype(np.uint8))
