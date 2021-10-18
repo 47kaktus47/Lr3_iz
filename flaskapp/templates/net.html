@@ -5,23 +5,41 @@
 <!-- блок body -->
 {% block content %}
 {{ wtf.quick_form(form, method='post',enctype="multipart/form-data", action="net") }}
-<!-- один из стандартных тэгов html - заголовок второго уровня -->
-<h2>grafik: </h2> 
-<!-- проверяем есть ли данные классификации -->
-{% if gr_name %}
- <p>{{gr_name}}
- <p><img src={{gr_name}}/>
-{% else %}
- <p> There is no image yet </p>
-{% endif %}
 
-<h2>Image is here: </h2>
-<!-- отображаем загруженное изображение с закругленными углами -->
-<!-- если оно есть (после submit) -->
-{% if image_name %}
- <p>{{image_name}}
- <p><img src={{image_name}}/>
-{% else %}
- <p> There is no image yet </p>
-{% endif %}
+<table>
+    <tr>
+      <td>С рамкой1</td>
+      <td>С рамкой2</td>
+      <td>График</td>
+    </tr>
+    <tr>
+    <td>
+        {% if filename %}
+        <p>{{filename}}
+        <p><img src={{image2_name}}/>
+        {% else %}
+        <p> There is no image yet </p>
+        {% endif %}
+    </td>
+      <td>
+        {% if image_name %}
+        <p>{{image_name}}
+        <p><img src={{image1_name}}/>
+        {% else %}
+        <p> There is no image yet </p>
+        {% endif %}
+    </td>
+
+    <td>
+        {% if gr_name %}
+        <p>{{gr_name}}
+        <p><img src={{gr_name}}/>
+        {% else %}
+        <p> There is no image yet </p>
+        {% endif %}
+    </td>
+    </tr>
+    
+  </table>
+
 {% endblock %}
