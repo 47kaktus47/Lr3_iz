@@ -6,40 +6,20 @@
 {% block content %}
 {{ wtf.quick_form(form, method='post',enctype="multipart/form-data", action="net") }}
 
-<table>
-    <tr>
-      <td>С рамкой1</td>
-      <td>С рамкой2</td>
-      <td>График</td>
-    </tr>
-    <tr>
-    <td>
+
         {% if image1_name %}
         <p>{{image1_name}}
         <p><img src={{image1_name}}/>
         {% else %}
         <p> There is no image yet </p>
         {% endif %}
-    </td>
-      <td>
-        {% if image2_name %}
-        <p>{{image2_name}}
-        <p><img src={{image2_name}}/>
-        {% else %}
-        <p> There is no image yet </p>
-        {% endif %}
-    </td>
-
-    <td>
+    
         {% if gr_name %}
         <p>{{gr_name}}
         <p><img src={{gr_name}}/>
         {% else %}
         <p> There is no image yet </p>
         {% endif %}
-    </td>
-    </tr>
-    
-  </table>
+   
 
 {% endblock %}
