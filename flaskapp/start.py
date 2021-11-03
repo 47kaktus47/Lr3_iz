@@ -33,7 +33,7 @@ class NetForm(FlaskForm):
  # и указывает пользователю ввести данные если они не введены
  # или неверны
  size1 = StringField('size1', validators = [DataRequired()])
- size2 = StringField('size2', validators = [DataRequired()])
+ 
  # поле загрузки файла
  # здесь валидатор укажет ввести правильные файлы
  upload = FileField('Load image', validators=[
@@ -55,11 +55,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 ## функция для оброботки изображения 
-def draw(filename,size1,size2):
+def draw(filename,size1):
  ##открываем изображение 
  print(filename)
  img= Image.open(filename)
- img2= Image.open(filename)
+
 ##делаем график
  fig = plt.figure(figsize=(6, 4))
  ax = fig.add_subplot()
@@ -75,7 +75,7 @@ def draw(filename,size1,size2):
 
 ##рисуем рамки
  size1=int(size1)
- size2=int(size2)
+ 
  height = 224
  width = 224
  img= np.array(img.resize((height,width)))/255.0
@@ -85,24 +85,17 @@ def draw(filename,size1,size2):
  img[:,224-size1:,1] = 0
  img[224-size1:,:,1] = 0
 
- img2= np.array(img2.resize((height,width)))/255.0
- print(size2)
- img2[:size2,:] = (0,0,0)
- img2[:,0:size2] = (0,0,0)
- img2[:,224-size2:] = (0,0,0)
- img2[224-size2:,:] = (0,0,0)
+ 
 ##сохраняем новое изображение
  img = Image.fromarray((img * 255).astype(np.uint8))
- img2 = Image.fromarray((img2 * 255).astype(np.uint8))
+
  print(img)
  #img = Image.fromarray(img)
  new_path = "./static/new.png"
  print(img)
  img.save(new_path)
- new_path1 = "./static/new1.png"
- print(img)
- img2.save(new_path1)
- return new_path, gr_path, new_path1
+ 
+ return new_path, gr_path
 
 # метод обработки запроса GET и POST от клиента
 @app.route("/net",methods=['GET', 'POST'])
@@ -112,7 +105,6 @@ def net():
  # обнуляем переменные передаваемые в форму
  filename=None
  newfilename=None
- newfilename1=None
  grname=None
  # проверяем нажатие сабмит и валидацию введенных данных
  if form.validate_on_submit():
@@ -120,13 +112,13 @@ def net():
   filename = os.path.join('./static', secure_filename(form.upload.data.filename))
  
   sz1=form.size1.data
-  sz2=form.size2.data
+ 
   form.upload.data.save(filename)
-  newfilename, grname, newfilename1 = draw(filename,sz1,sz2)
+  newfilename, grname = draw(filename,sz1)
  # передаем форму в шаблон, так же передаем имя файла и результат работы нейронной
  # сети если был нажат сабмит, либо передадим falsy значения
  
- return render_template('net.html',form=form,image1_name=newfilename,gr_name=grname,image2_name=newfilename1)
+ return render_template('net.html',form=form,image1_name=newfilename,gr_name=grname)
 
 if __name__ == "__main__":
  app.run(host='127.0.0.1',port=5000)
