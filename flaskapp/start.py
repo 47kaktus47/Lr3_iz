@@ -61,9 +61,10 @@ def draw(filename,size1,h,w):
  print(filename)
  height = int(h)
  width = int(w)
- orh,orw=img.size
+ 
  img= Image.open(filename)
  img1=Image.open(filename)
+ orh,orw=img.size
  img1=img1.resize((height,orw))
  img1.save("./static/new1.png")
  
