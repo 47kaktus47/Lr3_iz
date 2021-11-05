@@ -70,6 +70,10 @@ def draw(filename,size1,h,w):
  img2=Image.open(filename)
  img2=img2.resize((orh,width))
  img2.save("./static/new2.png")
+ 
+ img3=Image.open(filename)
+ img3=img3.resize((height,width))
+ img3.save("./static/new3.png")
 ##делаем график
  fig = plt.figure(figsize=(6, 4))
  ax = fig.add_subplot()
@@ -86,7 +90,8 @@ def draw(filename,size1,h,w):
 ##рисуем рамки
  size1=int(size1)
  
- 
+ height = 224
+ width = 224
  img= np.array(img.resize((height,width)))/255.0
  print(size1)
  img[:size1,:,1] = 0
@@ -104,7 +109,7 @@ def draw(filename,size1,h,w):
  print(img)
  img.save(new_path)
  
- return new_path, gr_path,"./static/new1.png", "./static/new2.png" 
+ return new_path, gr_path,"./static/new1.png", "./static/new2.png", "./static/new3.png"  
 
 # метод обработки запроса GET и POST от клиента
 @app.route("/net",methods=['GET', 'POST'])
@@ -117,6 +122,7 @@ def net():
  grname=None
  poh=None
  powi=None
+ poob=None
  # проверяем нажатие сабмит и валидацию введенных данных
  if form.validate_on_submit():
   # файлы с изображениями читаются из каталога static
@@ -126,11 +132,11 @@ def net():
   w=form.widht.data
   h=form.height.data
   form.upload.data.save(filename)
-  newfilename, grname, poh, powi = draw(filename,sz1,h,w)
+  newfilename, grname, poh, powi,poob = draw(filename,sz1,h,w)
  # передаем форму в шаблон, так же передаем имя файла и результат работы нейронной
  # сети если был нажат сабмит, либо передадим falsy значения
  
- return render_template('net.html',form=form,image1_name=newfilename,gr_name=grname, ishd=filename, pohe=poh, powie=powi)
+ return render_template('net.html',form=form,image1_name=newfilename,gr_name=grname, ishd=filename, pohe=poh, powie=powi,pooob=poob)
 
 if __name__ == "__main__":
  app.run(host='127.0.0.1',port=5000)
