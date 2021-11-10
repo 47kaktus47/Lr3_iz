@@ -7,24 +7,29 @@
 {{ wtf.quick_form(form, method='post',enctype="multipart/form-data", action="net") }}
         <table border="1">
     <tr>
-      <td>Исходная</td>
-      <td>с рамкой</td>
+      <td>Исходная1</td>
+      <td>Исходная2</td>
+      <td>Новое</td>
       <td>график</td>
-      <td>по высоте</td>
-      <td>по ширине</td>
-      <td>по обоим</td>
     </tr>
     <tr>
     
       <td>
-        {% if ishd %}
+        {% if ishd1 %}
         <p>{{ishd}}
-        <p><img src={{ishd}}/>
+        <p><img src={{ishd1}}/>
         {% else %}
         <p> There is no image yet </p>
         {% endif %}
     </td>
-
+    <td>
+      {% if ishd2 %}
+      <p>{{ishd}}
+      <p><img src={{ishd2}}/>
+      {% else %}
+      <p> There is no image yet </p>
+      {% endif %}
+    </td>
     <td>
         {% if image1_name %}
         <p>{{image1_name}}
@@ -41,30 +46,7 @@
         <p> There is no image yet </p>
         {% endif %}
     </td>
-    <td>
-        {% if pohe %}
-        <p>{{pohe}}
-        <p><img src={{pohe}}/>
-        {% else %}
-        <p> There is no image yet </p>
-        {% endif %}
-     </td>
-     <td>
-        {% if powie %}
-        <p>{{powie}}
-        <p><img src={{powie}}/>
-        {% else %}
-        <p> There is no image yet </p>
-        {% endif %}
-    </td>
-        <td>
-        {% if pooob %}
-        <p>{{pooob}}
-        <p><img src={{pooob}}/>
-        {% else %}
-        <p> There is no image yet </p>
-        {% endif %}
-    </td>
+    
     </tr>
     
   </table>
