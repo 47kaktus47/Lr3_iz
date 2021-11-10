@@ -11,7 +11,7 @@ from flask import render_template
 
 # модули работы с формами и полями в формах
 from flask_wtf import FlaskForm,RecaptchaField
-from wtforms import StringField, SubmitField, TextAreaField
+from wtforms import StringField, SubmitField, TextAreaField, RadioField
 # модули валидации полей формы
 from wtforms.validators import DataRequired
 from flask_wtf.file import FileField, FileAllowed, FileRequired
@@ -32,18 +32,23 @@ class NetForm(FlaskForm):
  # валидатор проверяет введение данных после нажатия кнопки submit
  # и указывает пользователю ввести данные если они не введены
  # или неверны
- size1 = StringField('size1', validators = [DataRequired()])
- height = StringField('height', validators = [DataRequired()])
- widht = StringField('widht', validators = [DataRequired()])
+    cho = RadioField('what to do', coerce=int, choices=[(0, 'umnozh'),(1, 'obrat'),(2,'umn na kf')])
+    kfr=StringField('kf for r', validators = [DataRequired()])
+    kfg=StringField('kf for g', validators = [DataRequired()])
+    kfb=StringField('kf for b', validators = [DataRequired()])
  # поле загрузки файла
  # здесь валидатор укажет ввести правильные файлы
- upload = FileField('Load image', validators=[
- FileRequired(),
- FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    upload = FileField('Load image', validators=[
+    FileRequired(),
+    FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+
+    upload2 = FileField('Load image2', validators=[
+    FileRequired(),
+    FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
  # поле формы с capture
- recaptcha = RecaptchaField()
+    recaptcha = RecaptchaField()
  #кнопка submit, для пользователя отображена как send
- submit = SubmitField('send')
+    submit = SubmitField('send')
 # функция обработки запросов на адрес 127.0.0.1:5000/net
 # модуль проверки и преобразование имени файла
 # для устранения в имени символов типа / и т.д.
@@ -56,25 +61,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 ## функция для оброботки изображения 
-def draw(filename,size1,h,w):
+def draw(filename1,filename2,cho,kfr,kfg,kfb):
  ##открываем изображение 
- print(filename)
- height = int(h)
- width = int(w)
+ print(filename1)
+ cho=int(cho)
+ kfr=int(kfr)
+ kfg=int(kfg)
+ kfb=int(kfb)
+
+ img= Image.open(filename1)
+ img1=Image.open(filename2)
  
- img= Image.open(filename)
- img1=Image.open(filename)
- orh,orw=img.size
- img1=img1.resize((height,orw))
- img1.save("./static/new1.png")
- 
- img2=Image.open(filename)
- img2=img2.resize((orh,width))
- img2.save("./static/new2.png")
- 
- img3=Image.open(filename)
- img3=img3.resize((height,width))
- img3.save("./static/new3.png")
 ##делаем график
  fig = plt.figure(figsize=(6, 4))
  ax = fig.add_subplot()
@@ -84,23 +81,30 @@ def draw(filename,size1,h,w):
  fig.colorbar(b, ax=ax)
  gr_path = "./static/newgr.png"
  sns.displot(data)
- #plt.show()
+
  plt.savefig(gr_path)
  plt.close()
 
-##рисуем рамки
- size1=int(size1)
- 
+
  height = 224
  width = 224
  img= np.array(img.resize((height,width)))/255.0
- print(size1)
- img[:size1,:,1] = 0
- img[:,0:size1,1] = 0
- img[:,224-size1:,1] = 0
- img[224-size1:,:,1] = 0
-
- 
+ from numpy.linalg import inv
+ height = 224
+ width = 224
+ img1= np.array(img1.resize((height,width)))/255.0
+ if cho==0:
+    img[:,:,0]=np.dot(img[:,:,0],img1[:,:,0])
+    img[:,:,1]=np.dot(img[:,:,1],img1[:,:,1])
+    img[:,:,2]=np.dot(img[:,:,2],img1[:,:,2])
+ if cho==1:
+    img[:,:,0]=inv(img[:,:,0])
+    img[:,:,1]=inv(img[:,:,1])
+    img[:,:,2]=inv(img[:,:,2])
+ if cho==2:
+    img[:,:,0]=img[:,:,0]*kfr
+    img[:,:,1]=img[:,:,1]*kfg
+    img[:,:,2]=img[:,:,2]*kfb
 ##сохраняем новое изображение
  img = Image.fromarray((img * 255).astype(np.uint8))
 
@@ -110,7 +114,7 @@ def draw(filename,size1,h,w):
  print(img)
  img.save(new_path)
  
- return new_path, gr_path,"./static/new1.png", "./static/new2.png", "./static/new3.png"  
+ return new_path, gr_path  
 
 # метод обработки запроса GET и POST от клиента
 @app.route("/net",methods=['GET', 'POST'])
@@ -118,26 +122,27 @@ def net():
  # создаем объект формы
  form = NetForm()
  # обнуляем переменные передаваемые в форму
- filename=None
+ filename1=None
+ filename2=None
  newfilename=None
  grname=None
- poh=None
- powi=None
- poob=None
+ 
  # проверяем нажатие сабмит и валидацию введенных данных
  if form.validate_on_submit():
   # файлы с изображениями читаются из каталога static
-  filename = os.path.join('./static', secure_filename(form.upload.data.filename))
- 
-  sz1=form.size1.data
-  w=form.widht.data
-  h=form.height.data
-  form.upload.data.save(filename)
-  newfilename, grname, poh, powi,poob = draw(filename,sz1,h,w)
+  filename1 = os.path.join('./static', secure_filename(form.upload.data.filename))
+  filename2 = os.path.join('./static', secure_filename(form.upload2.data.filename))
+  kfr=form.kfr.data
+  kfg=form.kfg.data
+  kfb=form.kfb.data
+  cho=form.cho.data
+  form.upload.data.save(filename1)
+  form.upload2.data.save(filename2)
+  newfilename, grname = draw(filename1,filename2,cho,kfr,kfg,kfb)
  # передаем форму в шаблон, так же передаем имя файла и результат работы нейронной
  # сети если был нажат сабмит, либо передадим falsy значения
  
- return render_template('net.html',form=form,image1_name=newfilename,gr_name=grname, ishd=filename, pohe=poh, powie=powi,pooob=poob)
+ return render_template('net.html',form=form,image1_name=newfilename,gr_name=grname, ishd1=filename1, ishd2=filename2)
 
 if __name__ == "__main__":
  app.run(host='127.0.0.1',port=5000)
