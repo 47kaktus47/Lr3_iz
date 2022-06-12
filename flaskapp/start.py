@@ -1,4 +1,5 @@
 print("Hello world")
+import sys
 from flask import Flask
 app = Flask(__name__)
 #декоратор для вывода страницы по умолчанию
@@ -61,9 +62,10 @@ import seaborn as sns
 def draw(filename1,cho):
  ##открываем изображение 
  print(filename1)
+ sys.stdout.flush()
  cho=int(cho)
  img= Image.open(filename1)
- x,y=img.size
+
  
 ##делаем график
  fig = plt.figure(figsize=(6, 4))
@@ -79,14 +81,18 @@ def draw(filename1,cho):
  plt.close()
 
  img= Image.open(filename1)
+ img= np.array(img.resize((224,224)))/255.0
+ img = Image.fromarray((img * 255).astype(np.uint8))
+
+ x,y=img.size
  for i in range(0,cho):
-    a = img.crop((0, 0, int( y * 0.5), int(x * 0.5)))
-    b = img.crop((int( y * 0.5), 0, y, int(x * 0.5)))
-    c = img.crop((int( y * 0.5), int(x * 0.5), y, x))
-    d = img.crop((0, int(x * 0.5), int( y * 0.5), x))
-    img.paste(a, (0, int(y * 0.5)))
-    img.paste(b, (int(x * 0.5), int(x * 0.5)))
-    img.paste(c, (int(x * 0.5), 0))
+    a = img.crop((0, 0, 112, 112))
+    b = img.crop((112, 0, x, 112))
+    c = img.crop((112, 112, x, y))
+    d = img.crop((0, 112, 112, y))
+    img.paste(a, (112, 0))
+    img.paste(b, (112, 112))
+    img.paste(c, (0, 112))
     img.paste(d, (0, 0))
 ##сохраняем новое изображение
 
@@ -114,7 +120,7 @@ def net():
  if form.validate_on_submit():
   # файлы с изображениями читаются из каталога static
   filename1 = os.path.join('./static', secure_filename(form.upload.data.filename))
-
+  ##filename1 = 'flaskapp\static\images.jpg'
 
   cho=form.cho.data
   form.upload.data.save(filename1)
