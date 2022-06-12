@@ -63,7 +63,7 @@ def draw(filename1,cho):
  print(filename1)
  cho=int(cho)
  img= Image.open(filename1)
-
+ x,y=img.size
  
 ##делаем график
  fig = plt.figure(figsize=(6, 4))
