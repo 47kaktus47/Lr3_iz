@@ -34,11 +34,14 @@ class NetForm(FlaskForm):
  # и указывает пользователю ввести данные если они не введены
  # или неверны
     
-    cho=StringField('rotate', validators = [DataRequired()])
+    cho=StringField('blend', validators = [DataRequired()])
   
  # поле загрузки файла
  # здесь валидатор укажет ввести правильные файлы
-    upload = FileField('Load image', validators=[
+    upload1 = FileField('Load image1', validators=[
+    FileRequired(),
+    FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    upload2 = FileField('Load image2', validators=[
     FileRequired(),
     FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
 
@@ -59,13 +62,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 ## функция для оброботки изображения 
-def draw(filename1,cho):
+def draw(filename1, filename2, cho):
  ##открываем изображение 
  print(filename1)
  sys.stdout.flush()
  cho=int(cho)
  img= Image.open(filename1)
-
+ img2= Image.open(filename2)
  
 ##делаем график
  fig = plt.figure(figsize=(6, 4))
@@ -74,26 +77,36 @@ def draw(filename1,cho):
  ax.imshow(img, cmap='plasma')
  b = ax.pcolormesh(data, edgecolors='black', cmap='plasma')
  fig.colorbar(b, ax=ax)
- gr_path = "./static/newgr.png"
+ gr_path1 = "./static/newgr1.png"
  sns.displot(data)
 
- plt.savefig(gr_path)
+ plt.savefig(gr_path1)
+ plt.close()
+ 
+ fig = plt.figure(figsize=(6, 4))
+ ax = fig.add_subplot()
+ data = np.random.randint(0, 255, (100, 100))
+ ax.imshow(img2, cmap='plasma')
+ b = ax.pcolormesh(data, edgecolors='black', cmap='plasma')
+ fig.colorbar(b, ax=ax)
+ gr_path2 = "./static/newgr2.png"
+ sns.displot(data)
+ 
+ plt.savefig(gr_path2)
  plt.close()
 
  img= Image.open(filename1)
  img= np.array(img.resize((224,224)))/255.0
  img = Image.fromarray((img * 255).astype(np.uint8))
 
- x,y=img.size
- for i in range(0,cho):
-    a = img.crop((0, 0, 112, 112))
-    b = img.crop((112, 0, x, 112))
-    c = img.crop((112, 112, x, y))
-    d = img.crop((0, 112, 112, y))
-    img.paste(a, (112, 0))
-    img.paste(b, (112, 112))
-    img.paste(c, (0, 112))
-    img.paste(d, (0, 0))
+ img2= Image.open(filename2)
+ img2= np.array(img2.resize((224,224)))/255.0
+ img2 = Image.fromarray((img2 * 255).astype(np.uint8))
+ 
+ 
+ img3 = Image.blend(img1,img2,cho)
+ 
+ 
 ##сохраняем новое изображение
 
 
@@ -103,7 +116,7 @@ def draw(filename1,cho):
  print(img)
  img.save(new_path)
  
- return new_path, gr_path  
+ return new_path, gr_path1, gr_path2  
 
 # метод обработки запроса GET и POST от клиента
 @app.route("/net",methods=['GET', 'POST'])
@@ -119,17 +132,19 @@ def net():
  # проверяем нажатие сабмит и валидацию введенных данных
  if form.validate_on_submit():
   # файлы с изображениями читаются из каталога static
-  filename1 = os.path.join('./static', secure_filename(form.upload.data.filename))
+  filename1 = os.path.join('./static', secure_filename(form.upload1.data.filename))
+  filename2 = os.path.join('./static', secure_filename(form.upload2.data.filename))
   ##filename1 = 'flaskapp\static\images.jpg'
 
   cho=form.cho.data
   form.upload.data.save(filename1)
+  form.upload.data.save(filename2)
 
-  newfilename, grname = draw(filename1,cho)
+  newfilename, grname1, grname2 = draw(filename1,filename2,cho)
  # передаем форму в шаблон, так же передаем имя файла и результат работы нейронной
  # сети если был нажат сабмит, либо передадим falsy значения
  
- return render_template('net.html',form=form,image1_name=newfilename,gr_name=grname, ishd1=filename1)
+ return render_template('net.html',form=form,image1_name=newfilename,gr_name=grname, ishd1=filename1, ishd2=filename2)
 
 if __name__ == "__main__":
  app.run(host='127.0.0.1',port=5000)
