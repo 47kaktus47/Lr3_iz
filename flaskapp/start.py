@@ -66,7 +66,7 @@ def draw(filename1, filename2, cho):
  ##открываем изображение 
  print(filename1)
  sys.stdout.flush()
- cho=int(cho)
+ cho=float(cho)
  img= Image.open(filename1)
  img2= Image.open(filename2)
  
