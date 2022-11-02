@@ -128,7 +128,7 @@ def net():
  filename2=None
  newfilename=None
  grname1=None
- grname2-None
+ grname2=None
  
  # проверяем нажатие сабмит и валидацию введенных данных
  if form.validate_on_submit():
