@@ -138,8 +138,8 @@ def net():
   ##filename1 = 'flaskapp\static\images.jpg'
 
   cho=form.cho.data
-  form.upload.data.save(filename1)
-  form.upload.data.save(filename2)
+  form.upload1.data.save(filename1)
+  form.upload2.data.save(filename2)
 
   newfilename, grname1, grname2 = draw(filename1,filename2,cho)
  # передаем форму в шаблон, так же передаем имя файла и результат работы нейронной
