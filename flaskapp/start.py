@@ -96,12 +96,12 @@ def draw(filename1, filename2, cho):
  plt.close()
 
  img= Image.open(filename1)
- img= np.array(img.resize((224,224)))/255.0
- img = Image.fromarray((img * 255).astype(np.uint8))
+ img= img.resize((224,224))
+ 
 
  img2= Image.open(filename2)
- img2= np.array(img2.resize((224,224)))/255.0
- img2 = Image.fromarray((img2 * 255).astype(np.uint8))
+ img2= img2.resize((224,224))
+
  
  
  img3 = Image.blend(img,img2,cho)
@@ -114,7 +114,7 @@ def draw(filename1, filename2, cho):
  #img = Image.fromarray(img)
  new_path = "./static/new.png"
 
- img.save(new_path)
+ img3.save(new_path)
  
  return new_path, gr_path1, gr_path2  
 
