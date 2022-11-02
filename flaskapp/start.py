@@ -104,16 +104,16 @@ def draw(filename1, filename2, cho):
  img2 = Image.fromarray((img2 * 255).astype(np.uint8))
  
  
- img3 = Image.blend(img1,img2,cho)
+ img3 = Image.blend(img,img2,cho)
  
  
 ##сохраняем новое изображение
 
 
- print(img)
+
  #img = Image.fromarray(img)
  new_path = "./static/new.png"
- print(img)
+
  img.save(new_path)
  
  return new_path, gr_path1, gr_path2  
