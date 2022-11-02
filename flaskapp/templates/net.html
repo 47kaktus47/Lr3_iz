@@ -8,20 +8,29 @@
         <table border="1">
     <tr>
       <td>Исходная1</td>
+      <td>Исходная2</td>
       <td>Новое</td>
-      <td>график</td>
+      <td>график1</td>
+      <td>график2</td>
     </tr>
     <tr>
     
       <td>
         {% if ishd1 %}
-        <p>{{ishd}}
+        <p>{{ishd1}}
         <p><img src={{ishd1}}/>
         {% else %}
         <p> There is no image yet </p>
         {% endif %}
     </td>
-    
+    <td>
+        {% if ishd2 %}
+        <p>{{ishd2}}
+        <p><img src={{ishd2}}/>
+        {% else %}
+        <p> There is no image yet </p>
+        {% endif %}
+    </td>
     <td>
         {% if image1_name %}
         <p>{{image1_name}}
@@ -38,7 +47,14 @@
         <p> There is no image yet </p>
         {% endif %}
     </td>
-    
+    <td>
+        {% if gr_name2 %}
+        <p>{{gr_name2}}
+        <p><img src={{gr_name2}}/>
+        {% else %}
+        <p> There is no image yet </p>
+        {% endif %}
+    </td>
     </tr>
     
   </table>
