@@ -59,6 +59,8 @@ import os
 
 import numpy as np
 from PIL import Image
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -113,7 +115,7 @@ def draw(filename1, filename2, cho):
 
 
  #img = Image.fromarray(img)
- new_path = "./static/new.png"
+ new_path = "./static/new1.png"
 
  img3.save(new_path)
  
@@ -149,4 +151,4 @@ def net():
  return render_template('net.html',form=form,image1_name=newfilename,gr_name=grname1,gr_name2=grname2, ishd1=filename1, ishd2=filename2)
 
 if __name__ == "__main__":
- app.run(host='127.0.0.1',port=5000)
+ app.run(host='127.0.0.1',port=5000, debug=True)
